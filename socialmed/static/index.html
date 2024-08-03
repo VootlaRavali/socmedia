@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #615c5c;
+        }
+        header {
+            background-color: #7a2020;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+        }
+    
+        ul{
+            list-style-type: none;
+            margin: 0;
+            padding:0;
+            overflow: hidden;
+            background-color: rgb(251, 134, 105);
+            
+        
+        }
+li{
+    float:left;
+}
+        li a{
+            display:inline-block;
+            color: rgb(43, 43, 41);
+            text-align: center;
+            padding: 20px 20px;
+        }
+            li a:hover:not(.active){
+                background-color: #eaa777;
+            }
+         .active{
+            background-color: #615c5c;
+         }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        .profile, .post, .comment {
+            border: 1px solid #eaa777;
+            margin: 10px;
+            padding: 10px;
+            background-color: #fff;
+        }
+        .post img {
+            max-width: 100%;
+        }
+        .like, .comment-btn {
+            cursor: pointer;
+            color: blue;
+        }
+        .new-post {
+            margin: 20px 0;
+            background-color: #fad4d4;
+        }
+        .new-post input, .new-post textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+        }
+        .new-post button {
+            padding: 10px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Social Media App</h1>
+        <div class="hd">
+            <ul>
+                <li><a class="active" href="#">HOME</a></li>
+                <li><a href="#">ACCOUNTS</a></li>
+                <li><a href="#">SEARCH</a></li>
+                <li><a href="#">PROFILE</a></li>
+            </ul>
+
+        </div>
+    </header>
+    <div class="container">
+        <div id="profile"></div>
+        <div class="new-post">
+            <h2>Create a New Post</h2>
+            <input type="text" id="post-content" placeholder="What's on your mind?">
+            <input type="file" id="post-image">
+            <input type="text" id="post-tags" placeholder="Tags (comma separated)">
+            <button onclick="createPost()">Post</button>
+        </div>
+        <div id="posts"></div>
+    </div>
+    <script>
+        const user = { id: 1, name: 'RavaliRaj ', followers: 100, following: 50 };
+        const posts = [
+            { id: 1, user: 'RavaliRaj', content: 'Hello World!', likes: 10, comments: [{ user: 'AleX', text: 'Nice post!' }], tags: ['greeting'] },
+            { id: 2, user: 'AleX', content: 'Good Morning!', likes: 5, comments: [], tags: ['morning'] },
+            { id: 3, user: 'SIRI', content: 'whatsupp!!',  likes: 7, comments: [], tags: ['greatt']},
+            { id: 4, user: 'singerRoy', content: 'heyy', likes: 3, comments: [{ user: 'SIRI',text: 'mrng!' }], tags: ['hi']}
+        ];
+        function displayProfile() {
+            const profileDiv = document.getElementById('profile');
+            profileDiv.innerHTML = `
+                <div class="profile">
+                    <h2>${user.name}</h2>
+                    <p>Followers: ${user.followers}</p>
+                    <p>Following: ${user.following}</p>
+                </div>
+            `;
+        }
+
+        function displayPosts() {
+            const postsDiv = document.getElementById('posts');
+            postsDiv.innerHTML = '';
+            posts.forEach(post => {
+                const postDiv = document.createElement('div');
+                postDiv.className = 'post';
+                postDiv.innerHTML = `
+                    <h3>${post.user}</h3>
+                    <p>${post.content}</p>
+                    ${post.image ? `<img src="${post.image}" alt="Post Image">` : ''}
+                    <p>Tags: ${post.tags.join(', ')}</p>
+                    <p><span class="like" onclick="likePost(${post.id})">Like</span> (${post.likes})</p>
+                    <div class="comments">
+                        ${post.comments.map(comment => `<div class="comment"><strong>${comment.user}:</strong> ${comment.text}</div>`).join('')}
+                    </div>
+                    <input type="text" id="comment-${post.id}" placeholder="Add a comment">
+                    <button class="comment-btn" onclick="addComment(${post.id})">Comment</button>
+                `;
+                postsDiv.appendChild(postDiv);
+            });
+        }
+
+        function likePost(postId) {
+            const post = posts.find(p => p.id === postId);
+            post.likes += 1;
+            displayPosts();
+        }
+
+        function addComment(postId) {
+            const commentText = document.getElementById(`comment-${postId}`).value;
+            const post = posts.find(p => p.id === postId);
+            post.comments.push({ user: user.name, text: commentText });
+            displayPosts();
+        }
+
+        function createPost() {
+            const content = document.getElementById('post-content').value;
+            const image = document.getElementById('post-image').files[0];
+            const tags = document.getElementById('post-tags').value.split(',').map(tag => tag.trim());
+            const newPost = { id: posts.length + 1, user: user.name, content, likes: 0, comments: [], tags };
+            if (image) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    newPost.image = e.target.result;
+                    posts.push(newPost);
+                    displayPosts();
+                };
+                reader.readAsDataURL(image);
+            } else {
+                posts.push(newPost);
+                displayPosts();
+            }
+        }
+
+        displayProfile();
+        displayPosts();
+    </script>
+</body>
+</html>
